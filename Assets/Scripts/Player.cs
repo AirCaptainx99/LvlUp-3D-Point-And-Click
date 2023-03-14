@@ -36,9 +36,9 @@ public class Player : Character
                     controller.MoveToTarget(target.transform);
                 }
             }
-
-            anim.SetBool("isMoving", controller.isMoving);
         }
+        anim.SetBool("isMoving", controller.isMoving);
+        print(string.Format("{0} {1}", anim.GetBool("isMoving"), controller.isMoving));
     }
 
     public override void Die()
