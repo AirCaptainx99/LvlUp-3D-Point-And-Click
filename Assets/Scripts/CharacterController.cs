@@ -46,6 +46,6 @@ public class CharacterController : MonoBehaviour
     public void StopMovement()
     {
         agent.isStopped = true;
-        isMoving = false;
+        moveTarget = null;
     }
 }

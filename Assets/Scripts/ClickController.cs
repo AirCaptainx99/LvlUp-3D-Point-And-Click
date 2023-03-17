@@ -18,7 +18,6 @@ public class ClickController : MonoBehaviour
         }
         if (Mouse.current.rightButton.wasPressedThisFrame)
         {
-            print("yahoo");
             Click();
         }
     }

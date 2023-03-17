@@ -26,19 +26,19 @@ public class Player : Character
                 controller.LookTowards(target.transform.position - transform.position);
 
                 // Check attack speed
-                if (Time.time - lastAttackTime < attackRate)
+                if (Time.time - lastAttackTime > attackRate)
                 {
                     lastAttackTime = Time.time;
-                    anim.SetTrigger("isAttacking");
+                    anim.SetTrigger("isAttack");
                 }
-                else
-                {
-                    controller.MoveToTarget(target.transform);
-                }
+            }
+            else
+            {
+                print("oya");
+                controller.MoveToTarget(target.transform);
             }
         }
         anim.SetBool("isMoving", controller.isMoving);
-        print(string.Format("{0} {1}", anim.GetBool("isMoving"), controller.isMoving));
     }
 
     public override void Die()

@@ -23,6 +23,8 @@ public class Character : MonoBehaviour
     protected virtual void Awake()
     {
         controller = GetComponent<CharacterController>();
+        healthBarPrefab = Instantiate(healthBarPrefab, transform.position + healthBarPrefab.transform.position, Quaternion.identity, transform);
+
     }
 
     public virtual void SetTarget(Character _target) 
@@ -50,6 +52,7 @@ public class Character : MonoBehaviour
     {
         isDead = true;
         onDie?.Invoke();
+        controller.StopMovement();
 
         // TODO
         Destroy(gameObject, 3f);
