@@ -41,9 +41,9 @@ public class Player : Character
         anim.SetBool("isMoving", controller.isMoving);
     }
 
-    public override void Die()
+    public override IEnumerator Die()
     {
-        base.Die();
         anim.SetBool("isDead", true);
+        yield return base.Die();
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PooledObject : MonoBehaviour
 {
-    private float timer;
+    [SerializeField] private float timer;
 
     protected void OnEnable()
     {

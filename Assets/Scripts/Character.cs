@@ -24,7 +24,13 @@ public class Character : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         healthBarPrefab = Instantiate(healthBarPrefab, transform.position + healthBarPrefab.transform.position, Quaternion.identity, transform);
+    }
 
+    protected virtual void OnEnable()
+    {
+        currentHp = maxHp;
+        healthBarPrefab.SetActive(true);
+        isDead = false;
     }
 
     public virtual void SetTarget(Character _target) 
@@ -38,7 +44,7 @@ public class Character : MonoBehaviour
 
         if (currentHp <= 0)
         {
-            Die();
+            StartCoroutine(Die());
         }
     }
     public virtual void AttackTarget() 
@@ -48,13 +54,13 @@ public class Character : MonoBehaviour
             target.TakeDamage(damage);
         }
     }
-    public virtual void Die()
+    public virtual IEnumerator Die()
     {
         isDead = true;
         onDie?.Invoke();
         controller.StopMovement();
 
-        // TODO
-        Destroy(gameObject, 3f);
+        yield return new WaitForSeconds(3f);
+        ObjectPool.Instance.DestroyGameObject(this.gameObject, true);
     }
 }

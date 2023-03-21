@@ -39,20 +39,37 @@ public class ObjectPool : MonoBehaviour
 
         foreach (Pool pool in pools)
         {
-            List<PooledObject> list = new List<PooledObject>();
-            GameObject parent = new GameObject(pool.tag);
+            GameObject parent = CreateNewPool(pool.tag);
 
             for (int i = 0; i < pool.size; i++)
             {
                 PooledObject obj = CreateNewObject(pool.prefab.gameObject, parent.transform);
-                list.Add(obj);
+                poolDictionary[pool.tag].Add(obj);
             }
-
-            poolDictionary.Add(pool.tag, list);
-            parent.transform.SetParent(this.transform);
-
-            parentDictionary.Add(pool.tag, parent);
         }
+    }
+
+    /// <summary>
+    /// Creating a GameObject that stores GameObjects with the same tag
+    /// </summary>
+    /// <param name="tag">The tag of the GameObject</param>
+    /// <returns>The parent GameObject that can store GameObjects with the same tag name as the GameObject's name if there aren't any parent GameObject with the same name yet.</returns>
+    private GameObject CreateNewPool(string tag)
+    {
+        if (poolDictionary.ContainsKey(tag))
+        {
+            Debug.LogWarning("The tag named: " + tag + " is already defined, are you meaning to use another name?");
+            return null;
+        }
+
+        GameObject parent = new GameObject(tag);
+        parent.transform.SetParent(this.transform);
+
+        List<PooledObject> list = new List<PooledObject>();
+
+        poolDictionary.Add(tag, list);
+        parentDictionary.Add(tag, parent);
+        return parent;
     }
 
     private PooledObject CreateNewObject(GameObject prefab, Transform parent)
@@ -118,11 +135,24 @@ public class ObjectPool : MonoBehaviour
     {
         if (obj.TryGetComponent(out PooledObject pooledObject)) // If it has PooledObject Component
         {
-            DestroyGameObject(pooledObject, saveToObjectPool);
+            DestroyGameObject(pooledObject);
         }
         else if (saveToObjectPool) // If it doesn't have PooledObject Component but wants to be saved in ObjectPool
         {
-            
+            // Add the PooledObject component
+            // If there aren't any parent GameObject with the same name as the GameObject's tag, make one
+            // Save the object into the pool dictionary
+            // Destroy the gameobject
+
+            pooledObject = obj.AddComponent<PooledObject>();
+
+            if (!poolDictionary.ContainsKey(obj.tag))
+            {
+                CreateNewPool(obj.tag);
+            }
+
+            poolDictionary[obj.tag].Add(pooledObject);
+            pooledObject.DestroyObject();
         }
         else // If it doesn't want to be saved in ObjectPool
         {
@@ -132,17 +162,20 @@ public class ObjectPool : MonoBehaviour
         return obj;
     }
 
-    public GameObject DestroyGameObject(PooledObject pooledObject, bool saveToObjectPool)
+    private GameObject DestroyGameObject(PooledObject pooledObject)
     {
         if (!poolDictionary.ContainsKey(pooledObject.tag))
         {
-            Destroy(pooledObject.gameObject);
-        }
-        else
-        {
-            pooledObject.DestroyObject();
+            CreateNewPool(pooledObject.tag);
         }
 
+        if (pooledObject.transform.parent != parentDictionary[pooledObject.tag].transform)
+        {
+            pooledObject.transform.SetParent(parentDictionary[pooledObject.tag].transform);
+        }
+
+        pooledObject.DestroyObject();
+        
         return pooledObject.gameObject;
     }
 
@@ -154,7 +187,7 @@ public class ObjectPool : MonoBehaviour
             {
                 if (obj != null && obj.isActiveAndEnabled)
                 {
-                    DestroyGameObject(obj, saveToObjectPool);
+                    DestroyGameObject(obj);
                 }
             }
         }

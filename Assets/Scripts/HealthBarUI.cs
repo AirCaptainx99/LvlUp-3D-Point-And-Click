@@ -11,6 +11,7 @@ public class HealthBarUI : MonoBehaviour
 
     private void OnEnable()
     {
+        UpdateHealthBar();
         character.onTakeDamage += UpdateHealthBar;
         character.onDie += HideHealthBar;
     }

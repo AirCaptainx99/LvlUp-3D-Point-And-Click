@@ -22,11 +22,20 @@ public class Enemy : Character
         anim = GetComponentInChildren<Animator>();
     }
 
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        EnemySpawnController.Instance.IncrementEnemyCount();
+    }
+
+    private void OnDisable()
+    {
+        EnemySpawnController.Instance.DecrementEnemyCount();
+    }
+
     private void Update()
     {
-        if (target == null || isDead) return;
-
-        if (target.isDead)
+        if (target == null || target.isDead)
         {
             anim.SetBool("isMoving", false);
             SetState(State.Idle);
@@ -111,9 +120,10 @@ public class Enemy : Character
         }
     }
 
-    public override void Die()
+    public override IEnumerator Die()
     {
-        base.Die();
+        SetState(State.Idle);
         anim.SetBool("isDead", true);
+        yield return base.Die();
     }
 }
