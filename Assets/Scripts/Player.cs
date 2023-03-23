@@ -34,7 +34,6 @@ public class Player : Character
             }
             else
             {
-                print("oya");
                 controller.MoveToTarget(target.transform);
             }
         }
