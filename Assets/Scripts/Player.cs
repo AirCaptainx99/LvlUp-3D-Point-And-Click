@@ -37,7 +37,7 @@ public class Player : Character
                 controller.MoveToTarget(target.transform);
             }
         }
-        if (target.isDead)
+        else
         {
             SetTarget(null);
         }
