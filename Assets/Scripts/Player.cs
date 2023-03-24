@@ -37,6 +37,10 @@ public class Player : Character
                 controller.MoveToTarget(target.transform);
             }
         }
+        if (target.isDead)
+        {
+            SetTarget(null);
+        }
         anim.SetBool("isMoving", controller.isMoving);
     }
 

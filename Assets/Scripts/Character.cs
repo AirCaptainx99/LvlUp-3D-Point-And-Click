@@ -37,10 +37,14 @@ public class Character : MonoBehaviour
     {
         target = _target;
     }
-    public virtual void TakeDamage(int value) 
+    public virtual void TakeDamage(int value, Quaternion rotation) 
     { 
         currentHp -= value;
         onTakeDamage?.Invoke();
+
+        PooledObject particle = ObjectPool.Instance.GetGameObjectFromPool("Particle");
+        particle.transform.position = transform.position;
+        particle.transform.rotation = rotation;
 
         if (currentHp <= 0)
         {
@@ -51,7 +55,7 @@ public class Character : MonoBehaviour
     { 
         if (target != null)
         {
-            target.TakeDamage(damage);
+            target.TakeDamage(damage, Quaternion.LookRotation(target.transform.position - transform.position));
         }
     }
     public virtual IEnumerator Die()
