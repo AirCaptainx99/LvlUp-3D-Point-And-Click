@@ -1,47 +1,63 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CController = UnityEngine.CharacterController;
 
 public class Player : Character
 {
     public static Player current;
+    public GameObject nav;
+    public float targetRange;
+    private bool allowAttack = true;
     private Animator anim;
     private float lastAttackTime;
+    private CController m_controller;
 
     protected override void Awake()
     {
         base.Awake();
         current = this;
         anim = GetComponentInChildren<Animator>();
+        m_controller = GetComponent<CController>();
     }
 
     private void Update()
     {
-        if (target != null && !target.isDead)
+        if (Time.time >= lastAttackTime + attackRate)
         {
-            float targetDistance = Vector3.Distance(transform.position, target.transform.position);
-            if (targetDistance <= attackRange)
+            allowAttack = true;
+        }
+        if (target == null)
+        {
+            nav.SetActive(false);
+            target = EnemyManager.Instance.FindNearestEnemy(transform.position, targetRange);
+        }
+        else
+        {
+            nav.SetActive(true);
+            nav.transform.position = target.transform.position;
+            if (target.isDead || Vector3.Distance(transform.position, target.transform.position) > targetRange)
             {
-                controller.StopMovement();
-                controller.LookTowards(target.transform.position - transform.position);
+                target = null;
+            }
+        }
+        anim.SetBool("isMoving", m_controller.velocity.magnitude > 0.2f);
+    }
 
-                // Check attack speed
-                if (Time.time - lastAttackTime > attackRate)
-                {
-                    lastAttackTime = Time.time;
-                    anim.SetTrigger("isAttack");
-                }
-            }
-            else
-            {
-                controller.MoveToTarget(target.transform);
-            }
-        }
-        if (target.isDead)
+    public void Attack()
+    {
+        if (!allowAttack) return;
+        
+        if (target != null)
         {
-            SetTarget(null);
+            float distance = Vector3.Distance(transform.position, target.transform.position);
+            if (distance <= targetRange)
+            {
+                transform.LookAt(target.transform.position);
+                anim.SetTrigger("isAttack");
+                allowAttack = false;
+            }
         }
-        anim.SetBool("isMoving", controller.isMoving);
     }
 
     public override IEnumerator Die()

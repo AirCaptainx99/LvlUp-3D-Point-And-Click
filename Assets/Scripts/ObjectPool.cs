@@ -8,6 +8,7 @@ public class ObjectPool : MonoBehaviour
     public static ObjectPool Instance;
     private void Awake()
     {
+        #region Singleton
         if (Instance == null)
         {
             Instance = this;
@@ -16,6 +17,21 @@ public class ObjectPool : MonoBehaviour
         else if (this != Instance)
         {
             Destroy(this);
+        }
+        #endregion
+
+        poolDictionary = new Dictionary<string, List<PooledObject>>();
+        parentDictionary = new Dictionary<string, GameObject>();
+
+        foreach (Pool pool in pools)
+        {
+            GameObject parent = CreateNewPool(pool.tag);
+
+            for (int i = 0; i < pool.size; i++)
+            {
+                PooledObject obj = CreateNewObject(pool.prefab.gameObject, parent.transform);
+                poolDictionary[pool.tag].Add(obj);
+            }
         }
     }
     #endregion
@@ -31,23 +47,6 @@ public class ObjectPool : MonoBehaviour
     public List<Pool> pools;
     public Dictionary<string, List<PooledObject>> poolDictionary;
     public Dictionary<string, GameObject> parentDictionary;
-
-    private void Start()
-    {
-        poolDictionary = new Dictionary<string, List<PooledObject>>();
-        parentDictionary = new Dictionary<string, GameObject>();
-
-        foreach (Pool pool in pools)
-        {
-            GameObject parent = CreateNewPool(pool.tag);
-
-            for (int i = 0; i < pool.size; i++)
-            {
-                PooledObject obj = CreateNewObject(pool.prefab.gameObject, parent.transform);
-                poolDictionary[pool.tag].Add(obj);
-            }
-        }
-    }
 
     /// <summary>
     /// Creating a GameObject that stores GameObjects with the same tag

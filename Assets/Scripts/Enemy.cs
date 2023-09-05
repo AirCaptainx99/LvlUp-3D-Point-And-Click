@@ -25,12 +25,12 @@ public class Enemy : Character
     protected override void OnEnable()
     {
         base.OnEnable();
-        EnemySpawnController.Instance.IncrementEnemyCount();
+        EnemyManager.Instance.IncrementEnemyCount();
     }
 
     private void OnDisable()
     {
-        EnemySpawnController.Instance.DecrementEnemyCount();
+        EnemyManager.Instance.DecrementEnemyCount();
     }
 
     private void Update()
